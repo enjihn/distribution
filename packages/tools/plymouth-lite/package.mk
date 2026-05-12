@@ -11,6 +11,9 @@ PKG_DEPENDS_INIT="toolchain gcc:init libpng"
 PKG_LONGDESC="Boot splash screen based on Fedora's Plymouth code"
 
 calc_distro_assets_stamp() {
+  [ -n "${DISTRO_DIR:-}" ] || return 0
+  [ -n "${DISTRO:-}" ] || return 0
+
   local base="${DISTRO_DIR}/${DISTRO}"
   local data=""
   local f
