@@ -43,7 +43,12 @@ This is **not SteamOS** and is **not affiliated with Valve**. StarmOS is a ROCKN
   - `distributions/ROCKNIX/logos/`
 - TODO before release: replace the placeholder splash PNGs with the intended StarmOS artwork.
 
+## GitHub Actions build (SM8550 only)
+1. Go to `Actions` -> `Build`.
+2. Click `Run workflow`.
+3. Select branch `starmos-rp6-alpha`.
+4. Set `SM8550` to `true` and leave all other devices `false`.
+
 ## Known limitations
 - Internal-install completion detection is heuristic: it relies on markers copied into `/storage` during internal install and a best-effort check to avoid provisioning while booted from SD.
 - Proton and anti-cheat limitations apply as with ROCKNIX/Steam on ARM; no global Proton forcing is applied.
-
