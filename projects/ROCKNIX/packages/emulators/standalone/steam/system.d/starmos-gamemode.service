@@ -1,0 +1,20 @@
+[Unit]
+Description=StarmOS Steam Game Mode
+After=rocknix-autostart.service network-online.target
+Wants=network-online.target
+OnFailure=starmos-recovery.service
+
+[Service]
+Environment=XDG_RUNTIME_DIR=/var/run/0-runtime-dir
+Environment=HOME=/storage
+Environment=SDL_AUDIODRIVER=pulseaudio
+EnvironmentFile=/etc/profile
+ExecStart=/usr/bin/starmos-gamemode
+Restart=on-failure
+RestartSec=5
+StartLimitIntervalSec=300
+StartLimitBurst=3
+
+[Install]
+WantedBy=rocknix.target
+

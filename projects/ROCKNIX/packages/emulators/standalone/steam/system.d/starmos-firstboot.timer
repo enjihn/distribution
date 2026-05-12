@@ -1,0 +1,11 @@
+[Unit]
+Description=StarmOS first boot provisioning timer
+
+[Timer]
+OnBootSec=2min
+OnUnitActiveSec=10min
+Persistent=true
+
+[Install]
+WantedBy=timers.target
+

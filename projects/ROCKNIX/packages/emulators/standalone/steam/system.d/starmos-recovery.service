@@ -1,0 +1,10 @@
+[Unit]
+Description=StarmOS recovery mode
+After=network.target
+
+[Service]
+Type=oneshot
+Environment=HOME=/storage
+EnvironmentFile=/etc/profile
+ExecStart=/usr/bin/starmos-recovery
+

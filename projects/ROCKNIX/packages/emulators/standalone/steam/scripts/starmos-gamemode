@@ -1,0 +1,27 @@
+#!/bin/bash
+
+# SPDX-License-Identifier: GPL-2.0-or-later
+# Copyright (C) 2026 StarmOS
+
+set -euo pipefail
+
+source /etc/profile
+. /usr/bin/starmos-common
+
+if ! starmos_is_rp6; then
+  starmos_log "gamemode: not RP6, refusing to start"
+  exit 1
+fi
+
+if starmos_is_boot_from_sd && ! starmos_has_marker "allow-provision-on-sd"; then
+  starmos_log "gamemode: refusing to start from SD without override marker"
+  exit 1
+fi
+
+if ! starmos_has_marker "internal-install-complete" && ! starmos_has_marker "allow-provision-on-sd"; then
+  starmos_log "gamemode: internal install not complete, refusing to start"
+  exit 1
+fi
+
+exec /usr/bin/start_steam.sh
+

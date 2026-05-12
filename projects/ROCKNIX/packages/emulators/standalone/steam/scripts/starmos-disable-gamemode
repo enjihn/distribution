@@ -1,0 +1,20 @@
+#!/bin/bash
+
+# SPDX-License-Identifier: GPL-2.0-or-later
+# Copyright (C) 2026 StarmOS
+
+set -euo pipefail
+
+source /etc/profile
+. /usr/bin/starmos-common
+
+PROFILE_OVERRIDE="/storage/.config/profile.d/095-starmos-ui_service"
+
+starmos_rm_marker "gamemode-enabled"
+rm -f "$PROFILE_OVERRIDE" 2>/dev/null || true
+
+systemctl stop starmos-gamemode.service 2>/dev/null || true
+systemctl start essway.service 2>/dev/null || true
+
+echo "StarmOS Game Mode disabled."
+

@@ -1,0 +1,82 @@
+#!/bin/bash
+
+# SPDX-License-Identifier: GPL-2.0-or-later
+# Copyright (C) 2026 StarmOS
+
+set -euo pipefail
+
+source /etc/profile
+. /usr/bin/starmos-common
+
+starmos_mkdir_state
+
+STEAM_ARM64_BIN_A="/storage/.local/share/Steam/steamrtarm64/steam"
+STEAM_ARM64_BIN_B="/storage/games-internal/roms/steam/steamrtarm64/steam"
+INSTALL_STEAM="/usr/config/modules/Install Steam.sh"
+
+should_provision() {
+  if starmos_has_marker "allow-provision-on-sd"; then
+    return 0
+  fi
+
+  if starmos_is_boot_from_sd; then
+    return 1
+  fi
+
+  if starmos_has_marker "internal-install-complete"; then
+    return 0
+  fi
+
+  if starmos_has_marker "internal-install-requested"; then
+    return 0
+  fi
+
+  return 1
+}
+
+steam_is_installed() {
+  [ -x "$STEAM_ARM64_BIN_A" ] || [ -x "$STEAM_ARM64_BIN_B" ]
+}
+
+if ! starmos_is_rp6; then
+  starmos_log "bootstrap: not RP6 (QUIRK_DEVICE='${QUIRK_DEVICE:-}'), skipping"
+  exit 0
+fi
+
+if ! should_provision; then
+  starmos_log "bootstrap: provisioning gated (boot_from_sd=$(starmos_is_boot_from_sd && echo yes || echo no))"
+  exit 0
+fi
+
+if steam_is_installed; then
+  starmos_touch_marker "steam-installed"
+  if starmos_has_marker "internal-install-requested" && ! starmos_has_marker "internal-install-complete" && ! starmos_is_boot_from_sd; then
+    starmos_touch_marker "internal-install-complete"
+  fi
+  if starmos_has_marker "internal-install-complete" && ! starmos_has_marker "gamemode-enabled"; then
+    starmos_log "bootstrap: enabling gamemode"
+    /usr/bin/starmos-enable-gamemode || true
+  fi
+  starmos_log "bootstrap: steam already installed, done"
+  exit 0
+fi
+
+if [ ! -x "$INSTALL_STEAM" ]; then
+  starmos_log "bootstrap: missing Install Steam.sh at '$INSTALL_STEAM'"
+  exit 0
+fi
+
+starmos_log "bootstrap: running ROCKNIX Install Steam.sh"
+/bin/bash "$INSTALL_STEAM"
+
+starmos_touch_marker "steam-installed"
+
+if starmos_has_marker "internal-install-requested" && ! starmos_is_boot_from_sd; then
+  starmos_touch_marker "internal-install-complete"
+fi
+
+if starmos_has_marker "internal-install-complete"; then
+  /usr/bin/starmos-enable-gamemode >/dev/null 2>&1 || true
+  systemctl stop emustation.service essway.service 2>/dev/null || true
+  systemctl start starmos-gamemode.service 2>/dev/null || true
+fi

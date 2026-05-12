@@ -1,0 +1,39 @@
+#!/bin/bash
+
+# SPDX-License-Identifier: GPL-2.0-or-later
+# Copyright (C) 2026 StarmOS
+
+set -euo pipefail
+
+source /etc/profile
+. /usr/bin/starmos-common
+
+usage() {
+  echo "Usage: starmos-healthcheck [--recovery]" >&2
+}
+
+if [ "${1:-}" = "--help" ]; then
+  usage
+  exit 0
+fi
+
+if [ "${1:-}" = "--recovery" ]; then
+  exec /usr/bin/starmos-recovery
+fi
+
+echo "StarmOS healthcheck"
+echo "  QUIRK_DEVICE: ${QUIRK_DEVICE:-}"
+echo "  root source : $(starmos_root_source)"
+echo "  boot from SD: $(starmos_is_boot_from_sd && echo yes || echo no)"
+echo "  markers     :"
+for m in internal-install-requested internal-install-complete gamemode-enabled steam-installed allow-provision-on-sd recovery-mode; do
+  if starmos_has_marker "$m"; then
+    echo "    - $m: present"
+  else
+    echo "    - $m: absent"
+  fi
+done
+
+systemctl --no-pager --quiet is-active starmos-gamemode.service && echo "  starmos-gamemode.service: active" || echo "  starmos-gamemode.service: inactive"
+systemctl --no-pager --quiet is-active starmos-firstboot.timer && echo "  starmos-firstboot.timer : active" || echo "  starmos-firstboot.timer : inactive"
+
