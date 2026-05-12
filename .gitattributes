@@ -7,3 +7,5 @@
 *.bmp binary
 *.gz binary
 
+projects/ROCKNIX/packages/plymouth-lite/splash/*.png binary
+projects/ROCKNIX/packages/plymouth-lite/splash/splash.conf text eol=lf

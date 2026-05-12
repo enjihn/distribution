@@ -39,14 +39,14 @@ This is **not SteamOS** and is **not affiliated with Valve**. StarmOS is a ROCKN
 
 ## Splash / logos
 - The issue’s attached splash image could not be fetched in this build environment, so a simple placeholder StarmOS splash/logo was generated under:
-  - `distributions/ROCKNIX/splash/`
+  - `projects/ROCKNIX/packages/plymouth-lite/splash/`
   - `distributions/ROCKNIX/logos/`
-- TODO before release: replace the placeholder splash PNGs with the intended StarmOS artwork.
+- TODO before release: replace the placeholder splash/logo assets with the intended StarmOS artwork.
 
 ## GitHub Actions build (SM8550 only)
 1. Go to `Actions` -> `Build`.
 2. Click `Run workflow`.
-3. Select branch `starmos-rp6-alpha`.
+3. Select branch `codex/starmos-rp6-alpha`.
 4. Set `SM8550` to `true` and leave all other devices `false`.
 
 ## Known limitations
