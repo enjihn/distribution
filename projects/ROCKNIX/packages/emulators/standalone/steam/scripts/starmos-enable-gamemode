@@ -1,0 +1,42 @@
+#!/bin/bash
+
+# SPDX-License-Identifier: GPL-2.0-or-later
+# Copyright (C) 2026 StarmOS
+
+set -euo pipefail
+
+source /etc/profile
+. /usr/bin/starmos-common
+
+PROFILE_OVERRIDE="/storage/.config/profile.d/095-starmos-ui_service"
+
+if ! starmos_is_rp6; then
+  echo "StarmOS gamemode is only supported on Retroid Pocket 6 (SM8550)." >&2
+  exit 1
+fi
+
+starmos_touch_marker "gamemode-enabled"
+
+mkdir -p "$(dirname "$PROFILE_OVERRIDE")"
+cat <<'EOF' >"$PROFILE_OVERRIDE"
+#!/bin/sh
+
+STARMOS_STATE_DIR="/storage/.config/starmos"
+
+is_rp6() {
+  case "${QUIRK_DEVICE:-}" in
+    "Retroid Pocket 6"|"Retroid Pocket 6 TOP-DPAD") return 0 ;;
+    *) return 1 ;;
+  esac
+}
+
+if is_rp6 && [ -f "${STARMOS_STATE_DIR}/gamemode-enabled" ] && [ -f "${STARMOS_STATE_DIR}/internal-install-complete" ]; then
+  UI_SERVICE="sway.service starmos-gamemode.service"
+else
+  UI_SERVICE="sway.service essway.service"
+fi
+EOF
+chmod 0755 "$PROFILE_OVERRIDE" 2>/dev/null || true
+
+echo "StarmOS Game Mode enabled. Reboot to enter Steam Game Mode after internal install is complete."
+

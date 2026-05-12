@@ -1,0 +1,26 @@
+#!/bin/bash
+
+# SPDX-License-Identifier: GPL-2.0-or-later
+# Copyright (C) 2026 StarmOS
+
+set -euo pipefail
+
+source /etc/profile
+. /usr/bin/starmos-common
+
+starmos_touch_marker "recovery-mode"
+
+systemctl stop starmos-gamemode.service 2>/dev/null || true
+systemctl stop sway.service 2>/dev/null || true
+systemctl stop essway.service 2>/dev/null || true
+
+for proc in gamescope steam steamwebhelper FEX fex-emu xwayland Xwayland; do
+  pkill -9 -f "$proc" 2>/dev/null || true
+done
+
+/usr/bin/starmos-disable-gamemode 2>/dev/null || true
+
+systemctl start essway.service 2>/dev/null || true
+
+echo "StarmOS recovery mode entered. Use: starmos-healthcheck, starmos-enable-gamemode, starmos-disable-gamemode"
+

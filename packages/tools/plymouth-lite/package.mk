@@ -10,6 +10,24 @@ PKG_URL="${DISTRO_SRC}/${PKG_NAME}-${PKG_VERSION}.tar.bz2"
 PKG_DEPENDS_INIT="toolchain gcc:init libpng"
 PKG_LONGDESC="Boot splash screen based on Fedora's Plymouth code"
 
+calc_distro_assets_stamp() {
+  local base="${DISTRO_DIR}/${DISTRO}"
+  local data=""
+  local f
+
+  for dir in splash logos; do
+    [ -d "${base}/${dir}" ] || continue
+    while IFS= read -r -d '' f; do
+      data+="${f#${base}/}:$(sha256sum "$f" | cut -d' ' -f1)\n"
+    done < <(find "${base}/${dir}" -maxdepth 1 -type f -print0 2>/dev/null | LC_ALL=C sort -z)
+  done
+
+  if [ -n "$data" ]; then
+    PKG_STAMP="distro-assets:${DISTRO}\n${data}"
+  fi
+}
+calc_distro_assets_stamp
+
 pre_configure_init() {
   # plymouth-lite dont support to build in subdirs
   cd ${PKG_BUILD}

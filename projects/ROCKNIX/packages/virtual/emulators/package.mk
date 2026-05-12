@@ -700,6 +700,9 @@ makeinstall_target() {
       add_emu_core steam steam steam true
       install_script "Install Steam.sh"
       install_script "Uninstall Steam.sh"
+      if [ "${DEVICE}" = "SM8550" ]; then
+        install_script "Install StarmOS to Internal.sh"
+      fi
       add_es_system steam
       add_emu_core heroic heroic heroic true
       install_script "Install Heroic Games Launcher.sh"

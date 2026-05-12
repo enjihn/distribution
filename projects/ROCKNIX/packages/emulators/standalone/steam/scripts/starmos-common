@@ -1,0 +1,73 @@
+#!/bin/bash
+
+# SPDX-License-Identifier: GPL-2.0-or-later
+# Copyright (C) 2026 StarmOS
+
+set -euo pipefail
+
+STARMOS_STATE_DIR="/storage/.config/starmos"
+STARMOS_LOG="/var/log/starmos.log"
+
+starmos_log() {
+  local msg="$*"
+  mkdir -p "$(dirname "$STARMOS_LOG")" 2>/dev/null || true
+  printf '%s %s\n' "$(date -Is 2>/dev/null || date)" "$msg" >>"$STARMOS_LOG" 2>/dev/null || true
+}
+
+starmos_mkdir_state() {
+  mkdir -p "$STARMOS_STATE_DIR" 2>/dev/null || true
+}
+
+starmos_is_rp6() {
+  case "${QUIRK_DEVICE:-}" in
+    "Retroid Pocket 6"|"Retroid Pocket 6 TOP-DPAD")
+      return 0
+      ;;
+    *)
+      return 1
+      ;;
+  esac
+}
+
+starmos_root_source() {
+  if command -v findmnt >/dev/null 2>&1; then
+    findmnt -n -o SOURCE / 2>/dev/null || true
+  else
+    awk '$2=="/"{print $1; exit}' /proc/mounts 2>/dev/null || true
+  fi
+}
+
+starmos_is_boot_from_sd() {
+  local root_source
+  root_source="$(starmos_root_source)"
+
+  if [[ "$root_source" == *mmcblk* ]]; then
+    return 0
+  fi
+  if grep -qE '(^| )root=/dev/mmcblk' /proc/cmdline 2>/dev/null; then
+    return 0
+  fi
+  return 1
+}
+
+starmos_marker_path() {
+  local name="$1"
+  echo "$STARMOS_STATE_DIR/$name"
+}
+
+starmos_has_marker() {
+  local name="$1"
+  [ -e "$(starmos_marker_path "$name")" ]
+}
+
+starmos_touch_marker() {
+  local name="$1"
+  starmos_mkdir_state
+  : >"$(starmos_marker_path "$name")" 2>/dev/null || true
+}
+
+starmos_rm_marker() {
+  local name="$1"
+  rm -f "$(starmos_marker_path "$name")" 2>/dev/null || true
+}
+

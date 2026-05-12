@@ -1,0 +1,9 @@
+*.sh text eol=lf
+*.mk text eol=lf
+*.service text eol=lf
+*.timer text eol=lf
+
+*.png binary
+*.bmp binary
+*.gz binary
+
